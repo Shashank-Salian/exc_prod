@@ -4,14 +4,14 @@ from django.middleware.csrf import get_token
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 import json
 
 from posts.models import Posts
 
-from .utils import get_user_data, get_post_data
+from .utils import get_user_data, get_post_data, get_logger
 
-static_page_cache = {}
-
+logger = get_logger(__name__)
 
 @login_required
 def home(req: HttpRequest):
@@ -77,8 +77,11 @@ def not_found(req: HttpRequest):
 	return render(req, "404.html", {'user_data': u_data})
 
 
+def forgot(req: HttpRequest):
+	return render(req, 'forgot.html')
+
 def favicon(req: HttpRequest):
-	with open('static/EXC.svg') as f:
+	with open(f'{settings.STATIC_ROOT}/EXC.svg') as f:
 		return HttpResponse(f.read(),
 		                    content_type="image/svg+xml; charset=utf-8")
-	# return HttpResponse()
+	return HttpResponse("")

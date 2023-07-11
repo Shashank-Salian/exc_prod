@@ -1,13 +1,5 @@
 from django.urls import path, include
-from django.conf.urls.static import static
-from django.conf import settings
-from django.http import HttpRequest, HttpResponse
-
 from . import views
-
-print(settings.STATIC_URL, settings.STATIC_ROOT)
-
-st = static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns = [
     # Pages Routes
@@ -32,4 +24,5 @@ urlpatterns = [
 
     # 404
     path('404/', views.not_found),
+    path('forgot/', views.forgot)
 ]

@@ -1,0 +1,49 @@
+{% extends 'basic.html' %} {% load static %} 
+{% load django_vite %}
+{% block head %}
+<title>Forgot password</title>
+<style>
+    body {
+        background-color: var(--creme);
+    }
+
+    h1 {
+        margin-bottom: 20px
+    }
+
+    button {
+        margin-left: 20px;
+    }
+</style>
+{% endblock head %}
+{% block body %}
+<div>
+    <h1>Forgot password :</h1>
+    <input type="email" name="email" id="inp" placeholder="Email" />
+    <button id="btn">Send email</button>
+</div>
+{% endblock body %}
+{% block scripts%}
+<script>
+    const btn = document.querySelector("#btn");
+    const inp = document.querySelector("#inp");
+    const body = new FormData();
+    body.append("email", inp.value);
+
+    btn.addEventListener("click", async (e) => {
+        const rawData = await fetch(`/api/users/forgot/`, {
+            method: "POST",
+            headers: new Headers({
+                "X-CSRFToken": getCookie("csrftoken") || "",
+            }),
+            body,
+	    });
+        const data = await rawData.json();
+        if (data.ok) {
+            alert("Email has been sent");
+            return;
+        }
+        alert("Something wen't wrong")
+    })
+</script>
+{% endblock scripts %}

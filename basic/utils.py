@@ -3,6 +3,46 @@ import re
 from PIL import Image, UnidentifiedImageError
 from django.core.mail import send_mail
 from django.template import loader
+from users.models import Users
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse
+from django.utils.encoding import force_bytes
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = Users.objects.get(email=email)
+        except Users.DoesNotExist:
+            user = None
+
+        if user is not None:
+            # Generate password reset token
+            token = default_token_generator.make_token(user)
+
+            # Build password reset URL
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            current_site = get_current_site(request)
+            reset_url = reverse('reset_password', kwargs={'uidb64': uid, 'token': token})
+            reset_url = 'http://' + current_site.domain + reset_url
+
+            # Send password reset email
+            subject = 'Reset your password'
+            send_mail(subject, f"Here is your reset password link :\n\n{reset_url}", 'your_email@example.com', [email])
+        
+        # Show success message regardless of whether the email exists or not
+        messages.success(request, 'An email has been sent with instructions to reset your password.')
+        return redirect('login')
+
+    return render(request, 'forgot_password.html')
+
 
 import logging
 
